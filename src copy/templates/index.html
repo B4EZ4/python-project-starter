@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Generador gratuito de códigos QR con múltiples estilos. Crea QR personalizados para enlaces, texto, contactos y más.">
+    <meta name="keywords" content="QR, generador QR, código QR, crear QR, QR personalizado">
+    <title>Generador QR - Crea códigos QR personalizados gratis</title>
+    
+    <!-- Enlaces de recursos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+    <!-- Script para las rutas de imágenes -->
+    <script>
+        const imagePaths = {
+            '1': "{{ url_for('static', filename='image/Circulo.png') }}",
+            '2': "{{ url_for('static', filename='image/Cuadrado.png') }}",
+            '3': "{{ url_for('static', filename='image/Barra Vertical.png') }}",
+            '4': "{{ url_for('static', filename='image/Barra Horizontal.png') }}",
+            '5': "{{ url_for('static', filename='image/Redondeado.png') }}",
+            '6': "{{ url_for('static', filename='image/Cuadrado clasico.png') }}"
+        };
+    </script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-qrcode"></i> Generador QR</h1>
+            <p class="tagline">Crea códigos QR personalizados de forma rápida y gratuita</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <section class="form-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-plus-circle"></i> Crear Código QR</h2>
+                    <p class="section-description">Ingresa tu texto o enlace y personaliza el estilo de tu código QR</p>
+                </div>
+                
+                <form id="crear-qr-form">
+                    <div class="form-group">
+                        <label for="texto" class="form-label">
+                            <i class="fas fa-font"></i> Contenido del QR:
+                        </label>
+                        <textarea id="texto" name="texto" rows="5" placeholder="Ingresa texto, enlace web, teléfono, email, etc..." required></textarea>
+                        <small class="form-help">Ejemplos: https://tusitio.com, +1234567890, email@ejemplo.com, texto libre</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo" class="form-label">
+                            <i class="fas fa-palette"></i> Estilo del código QR:
+                        </label>
+                        <select name="tipo" id="tipo" class="form-select">
+                            <option value="1">🔵 Círculo</option>
+                            <option value="2">◼️ Cuadrado</option>
+                            <option value="3">▮ Barra vertical</option>
+                            <option value="4">▬ Barra Horizontal</option>
+                            <option value="5">🔘 Redondeado</option>
+                            <option value="6" selected>◼️ Cuadrado Clásico</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nombre" class="form-label">
+                            <i class="fas fa-file-signature"></i> Nombre del archivo (opcional):
+                        </label>
+                        <input type="text" id="nombre" name="nombre" placeholder="mi_codigo_qr" class="form-input">
+                        <small class="form-help">Si no especificas un nombre, se usará "qr_default"</small>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-bolt"></i> Generar QR
+                    </button>
+                </form>
+                
+                <div id="qr-result" class="qr-result">
+                    <!-- Aquí se insertará la imagen generada y la información -->
+                </div>
+            </section>
+
+            <section class="form-section" id="example-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-eye"></i> Vista Previa del Estilo</h2>
+                    <p class="section-description">Visualiza cómo se verá tu código QR con el estilo seleccionado</p>
+                </div>
+                <div id="qr-example" class="qr-example">
+                    <img src="{{ url_for('static', filename='image/Cuadrado clasico.png') }}" alt="Vista previa del estilo de código QR seleccionado" id="example-img">
+                    <p class="example-caption">Selecciona un estilo para ver la vista previa</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Estadísticas en Tiempo Real -->
+        <section class="stats-section">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <i class="fas fa-qrcode stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-number" id="stat-generated">0</span>
+                        <span class="stat-label">QRs Generados</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-palette stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">Estilos Disponibles</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-shield-alt stat-icon"></i>
+                    <div class="stat-content">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Privado y Seguro</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Información del Creador -->
+        <section class="info-section">
+            <div class="info-container">
+                <h3><i class="fas fa-user"></i> Sobre el Proyecto</h3>
+                <div class="creator-info">
+                    <div class="creator-details">
+                        <p><strong>Creado por:</strong> <span class="highlight">Anton-Bazh & DeltaDev</span></p>
+                        <p><strong>Versión:</strong> <span class="highlight">2.1.0</span></p>
+                        <p><strong>Última actualización:</strong> <span class="highlight">2025</span></p>
+                    </div>
+                    <div class="social-links">
+                        <a href="https://github.com/Anton-Bazh" target="_blank" class="social-link">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <a href="https://www.instagram.com/baeza.doc/" target="_blank" class="social-link">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a>
+                        <a href="https://www.linkedin.com/in/antoniobaezat" target="_blank" class="social-link">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="support-section">
+                    <h4><i class="fas fa-heart"></i> Apoya el Proyecto</h4>
+                    <p>Si este generador QR te ha sido útil, considera apoyar su desarrollo continuo.</p>
+                    <a href="https://www.paypal.me/AntonioBaeza0" target="_blank" class="donate-link">
+                        <i class="fab fa-paypal"></i> Hacer una donación
+                    </a>
+                </div>
+                
+                <div class="privacy-notice">
+                    <h4><i class="fas fa-shield-alt"></i> Privacidad y Seguridad</h4>
+                    <p><strong>Importante:</strong> Este es un proyecto independiente. No almacenamos la información de los códigos QR generados, ni leemos ni guardamos los archivos subidos. Toda la información se procesa localmente en tu sesión.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Limitaciones y Aclaraciones Técnicas -->
+        <section class="limitations-section" id="limitations-section">
+            <div class="section-header">
+                <h2><i class="fas fa-info-circle"></i> Información Técnica y Limitaciones</h2>
+                <p class="section-description">Conoce las capacidades y consideraciones técnicas de nuestro generador QR</p>
+            </div>
+            
+            <div class="limitations-grid">
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-exclamation-circle limitation-icon"></i>
+                        <h3>Tamaño de los Códigos QR</h3>
+                    </div>
+                    <p>El generador es capaz de manejar hasta <strong>2,953 caracteres</strong>. El tamaño del código QR aumenta con la cantidad de datos, lo que puede afectar su capacidad de escaneo si los datos son demasiado extensos.</p>
+                </div>
+                
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-lock limitation-icon"></i>
+                        <h3>No Almacenamiento de Información</h3>
+                    </div>
+                    <p>Este generador de códigos QR <strong>no almacena ni lee</strong> los datos ingresados por los usuarios. Toda la información se procesa localmente en el servidor, garantizando la privacidad de los datos proporcionados.</p>
+                </div>
+                
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-image limitation-icon"></i>
+                        <h3>Calidad de la Imagen</h3>
+                    </div>
+                    <p>Generamos imágenes PNG de alta calidad. Para usos profesionales que requieran máxima resolución, considera ajustar los parámetros de tamaño en la generación.</p>
+                </div>
+                
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-cogs limitation-icon"></i>
+                        <h3>Tipos de Contenido Compatibles</h3>
+                    </div>
+                    <p>El generador funciona con <strong>texto plano, enlaces web, números de teléfono, direcciones de email, y más</strong>. Los formatos estándar garantizan que el código sea escaneable y funcional.</p>
+                </div>
+                
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-check-circle limitation-icon"></i>
+                        <h3>Compatibilidad</h3>
+                    </div>
+                    <p>Los códigos QR generados son compatibles con la mayoría de los escáneres QR disponibles en teléfonos inteligentes y aplicaciones de lectura. Algunos estilos personalizados pueden tener limitaciones en dispositivos muy antiguos.</p>
+                </div>
+                
+                <div class="limitation">
+                    <div class="limitation-header">
+                        <i class="fas fa-paint-brush limitation-icon"></i>
+                        <h3>Estilos Personalizados</h3>
+                    </div>
+                    <p>Ofrecemos 6 estilos visuales diferentes para los códigos QR. Mientras que los estilos mejoran la apariencia, recomendamos el "Cuadrado Clásico" para máxima compatibilidad.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="section-header">
+                <h2><i class="fas fa-question-circle"></i> Preguntas Frecuentes</h2>
+            </div>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>¿Qué tipos de contenido puedo convertir en QR?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Puedes generar códigos QR para: enlaces web, texto libre, números de teléfono (para marcar directamente), direcciones de email (para enviar correos), mensajes SMS, y cualquier otro texto plano.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>¿Los códigos QR generados expiran?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, los códigos QR generados no tienen fecha de expiración. Una vez descargados, permanecerán funcionales indefinidamente mientras el contenido que representan siga siendo válido.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>¿Puedo personalizar los colores de mi QR?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Actualmente ofrecemos 6 estilos de módulos diferentes. En futuras versiones planeamos añadir más opciones de personalización, incluyendo colores.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>¿Hay algún costo por usar este generador?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, este generador de códigos QR es completamente gratuito. Es un proyecto de código abierto creado para la comunidad.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Generador QR</h4>
+                <p>Herramienta gratuita para crear códigos QR personalizados al instante.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="#limitations-section">Información Técnica</a></li>
+                    <li><a href="https://github.com/Anton-Bazh" target="_blank">GitHub</a></li>
+                    <li><a href="#" id="show-donation-modal">Apoyar el Proyecto</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#" id="privacy-link">Privacidad</a></li>
+                    <li><a href="#" id="terms-link">Términos de Uso</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Generador de Códigos QR. Todos los derechos reservados. | Creado con <i class="fas fa-heart"></i> por Anton-Bazh</p>
+        </div>
+    </footer>
+
+    <!-- Modal de donación -->
+    <div id="donation-modal" class="donation-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-header">
+                <i class="fas fa-heart modal-icon"></i>
+                <h2>¡Tu apoyo hace magia!</h2>
+            </div>
+            <div class="modal-body">
+                <p>¿Sabías que con tu donación puedes ayudar a mantener este proyecto en funcionamiento? Cada contribución nos permite:</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Mantener el servicio gratuito para todos</li>
+                    <li><i class="fas fa-check"></i> Desarrollar nuevas funcionalidades</li>
+                    <li><i class="fas fa-check"></i> Mejorar el rendimiento y seguridad</li>
+                    <li><i class="fas fa-check"></i> Ofrecer soporte y actualizaciones</li>
+                </ul>
+                <p>¡Tu apoyo marca la diferencia!</p>
+            </div>
+            <div class="modal-actions">
+                <a href="https://www.paypal.me/AntonioBaeza0" target="_blank" class="donate-btn">
+                    <i class="fab fa-paypal"></i> Donar con PayPal
+                </a>
+                <button class="close-modal-btn">Quizás más tarde</button>
+            </div>
+            <div class="modal-footer">
+                <p><i class="fas fa-rocket"></i> Cada código QR generado es una pequeña parte del futuro! 🚀</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
