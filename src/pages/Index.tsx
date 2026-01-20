@@ -26,7 +26,7 @@ export default function Index() {
       <main className="flex-1 px-4 py-8">
         {/* Form Container */}
         <div className="flex justify-center gap-8 mb-8 flex-wrap items-start">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-lg">
             <QRForm
               onSubmit={generateQR}
               onStyleChange={setSelectedStyle}
