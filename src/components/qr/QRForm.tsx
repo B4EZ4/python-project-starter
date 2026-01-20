@@ -6,20 +6,27 @@ import { FrameConfig } from './FrameConfig';
 import { LogoConfig } from './LogoConfig';
 import { CornersConfig } from './CornersConfig';
 import { ConfigExportImport } from './ConfigExportImport';
+import { TemplatesSelector } from './TemplatesSelector';
+import { QR_TEMPLATES, type QRTemplate } from '@/data/qrTemplates';
 
 interface QRFormProps {
   onSubmit: (config: QRConfig) => void;
-  onStyleChange: (tipo: number) => void;
+  onConfigChange: (config: QRConfig) => void;
   isLoading: boolean;
 }
 
-export function QRForm({ onSubmit, onStyleChange, isLoading }: QRFormProps) {
+export function QRForm({ onSubmit, onConfigChange, isLoading }: QRFormProps) {
   const [config, setConfig] = useState<QRConfig>(DEFAULT_QR_CONFIG);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
-  const updateConfig = (updates: Partial<QRConfig>) => {
-    setConfig((prev) => ({ ...prev, ...updates }));
-  };
+  const updateConfig = useCallback((updates: Partial<QRConfig>) => {
+    setConfig((prev) => {
+      const newConfig = { ...prev, ...updates };
+      onConfigChange(newConfig);
+      return newConfig;
+    });
+  }, [onConfigChange]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -30,24 +37,29 @@ export function QRForm({ onSubmit, onStyleChange, isLoading }: QRFormProps) {
     [config, onSubmit]
   );
 
-  const handleStyleChange = useCallback(
-    (newTipo: number) => {
-      updateConfig({ tipo: newTipo });
-      onStyleChange(newTipo);
-    },
-    [onStyleChange]
-  );
+  const handleTemplateSelect = useCallback((template: QRTemplate) => {
+    setSelectedTemplateId(template.id);
+    const newConfig = {
+      ...config,
+      ...template.config,
+      texto: config.texto, // Keep the current text
+      nombre: config.nombre, // Keep the current name
+    } as QRConfig;
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  }, [config, onConfigChange]);
 
-  const handleImport = (importedConfig: QRConfig) => {
+  const handleImport = useCallback((importedConfig: QRConfig) => {
     setConfig(importedConfig);
-    onStyleChange(importedConfig.tipo);
-  };
+    onConfigChange(importedConfig);
+    setSelectedTemplateId(null);
+  }, [onConfigChange]);
 
   const charCount = config.texto.length;
   const isOverLimit = charCount > MAX_TEXT_LENGTH;
 
   return (
-    <section className="bg-gradient-to-br from-secondary to-slate-600 p-6 rounded-xl w-full max-w-md shadow-lg transition-transform hover:-translate-y-1">
+    <section className="bg-gradient-to-br from-secondary to-slate-600 p-6 rounded-xl w-full shadow-lg transition-transform hover:-translate-y-1">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-semibold text-muted flex items-center justify-center gap-2">
           <span className="text-primary">+</span> Crear Código QR
@@ -58,6 +70,12 @@ export function QRForm({ onSubmit, onStyleChange, isLoading }: QRFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Templates */}
+        <TemplatesSelector
+          onSelectTemplate={handleTemplateSelect}
+          selectedTemplateId={selectedTemplateId}
+        />
+
         {/* Texto Input */}
         <div className="space-y-2">
           <label htmlFor="texto" className="flex items-center gap-2 font-semibold text-foreground">
@@ -67,7 +85,7 @@ export function QRForm({ onSubmit, onStyleChange, isLoading }: QRFormProps) {
             id="texto"
             value={config.texto}
             onChange={(e) => updateConfig({ texto: e.target.value })}
-            rows={4}
+            rows={3}
             placeholder="Ingresa texto, enlace web, teléfono, email, etc..."
             required
             className="w-full p-3 border border-white/10 rounded-lg bg-white/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-y transition-all"
@@ -90,7 +108,7 @@ export function QRForm({ onSubmit, onStyleChange, isLoading }: QRFormProps) {
           <select
             id="tipo"
             value={config.tipo}
-            onChange={(e) => handleStyleChange(Number(e.target.value))}
+            onChange={(e) => updateConfig({ tipo: Number(e.target.value) })}
             className="w-full p-3 border border-white/10 rounded-lg bg-white/10 text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           >
             {QR_STYLES.map((style) => (
